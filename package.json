@@ -1,0 +1,10 @@
+{
+  "name": "bermuda",
+  "description": "Draggable polygons for google maps",
+  "dependencies": {
+    "gulp": "^3.6.1",
+    "gulp-coffee": "^1.4.3",
+    "gulp-uglify": "^0.3.0",
+    "gulp-rename": "^1.2.0"
+  }
+}
