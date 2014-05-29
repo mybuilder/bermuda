@@ -1,10 +1,22 @@
 {
   "name": "bermuda",
-  "description": "Draggable polygons for google maps",
+  "description": "Draggable polygons for Google Maps",
+  "author": "Keyvan Akbary <keyvan@mybuilder.com> (http://twitter.com/keyvanakbary)",
+  "keywords": [
+    "google", "maps", "drag"
+  ],
+  "homepage": "https://github.com/mybuilder/bermuda",
+  "repository": "git://github.com/mybuilder/bermuda.git",
   "dependencies": {
     "gulp": "^3.6.1",
     "gulp-coffee": "^1.4.3",
     "gulp-uglify": "^0.3.0",
     "gulp-rename": "^1.2.0"
-  }
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://github.com/mybuilder/bermuda/raw/master/LICENSE"
+    }
+  ]
 }
