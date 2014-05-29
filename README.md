@@ -1,5 +1,7 @@
 # Bermuda
-Simple and fast Javascript library for drawing draggable polygons in Google Maps!
+Simple and fast Javascript library for drawing draggable polygons in [Google Maps](https://developers.google.com/maps/documentation/javascript/)!
+
+![Map Dragging](http://i.imgur.com/jWw09jx.gif)
 
 ## Usage
 Include required libraries
@@ -12,7 +14,7 @@ Include required libraries
 Paint fancy polygons!
 
 ```javascript
-var map = new Bermuda(document.getElementById('map-canvas'));
+var map = new Bermuda(document.getElementById("map-canvas"));
 map.draw([[25.774, -80.190], [18.466, -66.118], [32.321, -64.757]]);
 ```
 
@@ -21,14 +23,16 @@ map.draw([[25.774, -80.190], [18.466, -66.118], [32.321, -64.757]]);
 ### Map Default Settings
 
 ```javascript
-var map = new Bermuda(document.getElementById('map-canvas'), {
-    markerTitle: 'Drag me!',
-    strokeColor: '#FF0000',
-    strokeOpacity: 0.8,
-    strokeWeight: 2,
-    fillColor: '#FF0000',
-    fillOpacity: 0.35,
-    onChange: function(coords) {}
+var map = new Bermuda(document.getElementById("map-canvas"), {
+    polygon: {
+      strokeColor: "#008525",
+      fillColor: "#008525"
+    },
+    icon: {
+      image: "images/map-pin@2x.png",
+      width: 15,
+      height: 21
+    }
 });
 ```
 
@@ -36,12 +40,6 @@ var map = new Bermuda(document.getElementById('map-canvas'), {
 You could subscribe to change events on the map easily
 
 ```javascript
-var map = new Bermuda(canvas, {
-    onChange: function(points) {
-        console.log(points);
-    }
-});
-//or
 map.onChange(function(coords) {
     console.log(coords);
 });

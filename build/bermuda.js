@@ -1,66 +1,84 @@
-var Bermuda;
+var Bermuda,
+  __slice = [].slice;
 
 Bermuda = (function() {
-  var autoCenter, createMap, createMarker, createMarkers, createPolygon, listen, markerCoordinates, markerLatLangs, removePolygon, toLatLang, toLatLangs;
+  var DEFAULT_SETTINGS, autoCenter, combine, createIcon, isEmpty, listen, markerCoordinates, markerLatLangs, merge, removePolygon, toLatLang, toLatLangs;
 
-  Bermuda.prototype.settings = {
-    markerTitle: 'Drag me!',
-    strokeColor: '#FF0000',
-    strokeOpacity: 0.8,
-    strokeWeight: 2,
-    fillColor: '#FF0000',
-    fillOpacity: 0.35,
-    onChange: function(coords) {}
+  DEFAULT_SETTINGS = {
+    marker: {},
+    polygon: {},
+    icon: {},
+    map: {}
   };
 
+  Bermuda.prototype.changeCallback = function(coords) {};
+
   function Bermuda(elem, config) {
-    var key, value;
     this.elem = elem;
     if (config == null) {
       config = {};
     }
-    for (key in config) {
-      value = config[key];
-      this.settings[key] = value;
-    }
+    this.settings = combine(DEFAULT_SETTINGS, config);
+    this.icon = createIcon(this.settings);
   }
 
+  combine = function(defaults, config) {
+    var item, key, name, value;
+    for (name in config) {
+      item = config[name];
+      for (key in item) {
+        value = item[key];
+        defaults[name][key] = value;
+      }
+    }
+    return defaults;
+  };
+
+  createIcon = function(settings) {
+    var size;
+    if (isEmpty(settings.icon)) {
+      return null;
+    }
+    size = new google.maps.Size(settings.icon.width, settings.icon.height);
+    return new google.maps.MarkerImage(settings.icon.image, null, null, null, size);
+  };
+
+  isEmpty = function(object) {
+    return Object.keys(object).length === 0;
+  };
+
   Bermuda.prototype.onChange = function(callback) {
-    return settings.onChange = callback;
+    return this.changeCallback = callback;
   };
 
   Bermuda.prototype.draw = function(coords) {
     var map;
-    map = createMap(this.elem, this.settings);
+    map = new google.maps.Map(this.elem, this.settings.map);
     return this.initPolygon(map, this.initMarkers(map, coords));
-  };
-
-  createMap = function(elem, settings) {
-    return new google.maps.Map(elem, settings);
   };
 
   Bermuda.prototype.initMarkers = function(map, coords) {
     var marker, markers, _i, _len;
-    markers = createMarkers(map, this.settings, coords);
+    markers = this.createMarkers(map, coords);
     autoCenter(map, markerLatLangs(markers));
     for (_i = 0, _len = markers.length; _i < _len; _i++) {
       marker = markers[_i];
       listen(marker, "dragend", (function(_this) {
         return function() {
-          return _this.settings.onChange(markerCoordinates(markers));
+          return _this.changeCallback(markerCoordinates(markers));
         };
       })(this));
     }
     return markers;
   };
 
-  createMarkers = function(map, settings, coords) {
+  Bermuda.prototype.createMarkers = function(map, coords) {
     var point, points, _i, _len, _results;
     points = toLatLangs(coords);
     _results = [];
     for (_i = 0, _len = points.length; _i < _len; _i++) {
       point = points[_i];
-      _results.push(createMarker(map, point, settings));
+      _results.push(this.createMarker(map, point));
     }
     return _results;
   };
@@ -79,13 +97,27 @@ Bermuda = (function() {
     return new google.maps.LatLng(coord[0], coord[1]);
   };
 
-  createMarker = function(map, point, settings) {
-    return new google.maps.Marker({
+  Bermuda.prototype.createMarker = function(map, point) {
+    return new google.maps.Marker(merge(this.settings.marker, {
       position: point,
       map: map,
       draggable: true,
-      title: settings.markerTitle
-    });
+      icon: this.icon
+    }));
+  };
+
+  merge = function() {
+    var dest, key, obj, objs, value, _i, _len;
+    objs = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    dest = {};
+    for (_i = 0, _len = objs.length; _i < _len; _i++) {
+      obj = objs[_i];
+      for (key in obj) {
+        value = obj[key];
+        dest[key] = value;
+      }
+    }
+    return dest;
   };
 
   autoCenter = function(map, markers) {
@@ -104,7 +136,7 @@ Bermuda = (function() {
 
   Bermuda.prototype.initPolygon = function(map, markers) {
     var marker, polygon, _i, _len, _results;
-    polygon = createPolygon(map, this.settings, markers);
+    polygon = this.createPolygon(map, markers);
     _results = [];
     for (_i = 0, _len = markers.length; _i < _len; _i++) {
       marker = markers[_i];
@@ -112,7 +144,7 @@ Bermuda = (function() {
         return function() {
           var prevPolygon;
           prevPolygon = polygon;
-          polygon = createPolygon(map, _this.settings, markers);
+          polygon = _this.createPolygon(map, markers);
           return removePolygon(prevPolygon);
         };
       })(this)));
@@ -144,18 +176,13 @@ Bermuda = (function() {
     return polygon.setMap(null);
   };
 
-  createPolygon = function(map, settings, markers) {
-    return new google.maps.Polygon({
+  Bermuda.prototype.createPolygon = function(map, markers) {
+    return new google.maps.Polygon(merge(this.settings.polygon, {
       map: map,
       paths: markerLatLangs(markers),
-      strokeColor: settings.strokeColor,
-      strokeOpacity: settings.strokeOpacity,
-      strokeWeight: settings.strokeWeight,
-      fillColor: settings.fillColor,
-      fillOpacity: settings.fillOpacity,
       draggable: false,
       geodesic: true
-    });
+    }));
   };
 
   return Bermuda;

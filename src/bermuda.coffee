@@ -1,38 +1,48 @@
 class Bermuda
   
-  settings:
-    markerTitle: 'Drag me!'
-    strokeColor: '#FF0000'
-    strokeOpacity: 0.8
-    strokeWeight: 2
-    fillColor: '#FF0000'
-    fillOpacity: 0.35
-    onChange: (coords) ->
+  DEFAULT_SETTINGS =
+    marker: {}
+    polygon: {}
+    icon: {}
+    map: {}
+
+  changeCallback: (coords) ->
   
   constructor: (@elem, config = {}) ->
-    @settings[key] = value for key, value of config
+    @settings = combine(DEFAULT_SETTINGS, config)
+    @icon = createIcon(@settings)
+
+  combine = (defaults, config) ->
+    for name, item of config
+      defaults[name][key] = value for key, value of item
+    defaults
+    
+  createIcon = (settings) ->
+    return null if isEmpty(settings.icon)
+    size = new google.maps.Size(settings.icon.width, settings.icon.height)
+    new google.maps.MarkerImage(settings.icon.image, null, null, null, size)
+
+  isEmpty = (object) ->
+     Object.keys(object).length is 0
 
   onChange: (callback) ->
-    settings.onChange = callback
+    @changeCallback = callback
   
   draw: (coords) ->
-    map = createMap(@elem, @settings)
+    map = new google.maps.Map(@elem, @settings.map)
     @initPolygon(map, @initMarkers(map, coords))
-
-  createMap = (elem, settings) ->
-    new google.maps.Map(elem, settings)
     
   initMarkers: (map, coords) ->
-    markers = createMarkers(map, @settings, coords)
+    markers = @createMarkers(map, coords)
     autoCenter(map, markerLatLangs(markers))
     for marker in markers    
       listen marker, "dragend", =>
-        @settings.onChange(markerCoordinates(markers))
+        @changeCallback(markerCoordinates(markers))
     markers
   
-  createMarkers = (map, settings, coords) ->
+  createMarkers: (map, coords) ->
     points = toLatLangs(coords)
-    createMarker(map, point, settings) for point in points
+    @createMarker(map, point) for point in points
   
   toLatLangs = (coords) ->
     toLatLang (coord) for coord in coords
@@ -40,12 +50,18 @@ class Bermuda
   toLatLang = (coord) ->
     new google.maps.LatLng(coord[0], coord[1])
   
-  createMarker = (map, point, settings) ->
-    new google.maps.Marker
+  createMarker: (map, point) ->
+    new google.maps.Marker merge @settings.marker,
       position: point
       map: map
       draggable: true
-      title: settings.markerTitle
+      icon: @icon
+
+  merge = (objs...) ->
+    dest = {}
+    for obj in objs
+      dest[key] = value for key, value of obj
+    dest
   
   autoCenter = (map, markers) ->
     bounds = new google.maps.LatLngBounds()
@@ -56,11 +72,11 @@ class Bermuda
     google.maps.event.addListener(elem, event, callback)
   
   initPolygon: (map, markers) ->
-    polygon = createPolygon(map, @settings, markers)
+    polygon = @createPolygon(map, markers)
     for marker in markers
       listen marker, "drag", =>
         prevPolygon = polygon
-        polygon = createPolygon(map, @settings, markers)
+        polygon = @createPolygon(map, markers)
         removePolygon(prevPolygon)
   
   markerLatLangs = (markers) ->
@@ -72,14 +88,9 @@ class Bermuda
   removePolygon = (polygon) ->
     polygon.setMap(null)
       
-  createPolygon = (map, settings, markers) ->
-    new google.maps.Polygon
+  createPolygon: (map, markers) ->
+    new google.maps.Polygon merge @settings.polygon,
       map: map
       paths: markerLatLangs(markers)
-      strokeColor: settings.strokeColor
-      strokeOpacity: settings.strokeOpacity
-      strokeWeight: settings.strokeWeight
-      fillColor: settings.fillColor
-      fillOpacity: settings.fillOpacity
-      draggable: false,
+      draggable: false
       geodesic: true
