@@ -18,9 +18,7 @@ var map = new Bermuda(document.getElementById("map-canvas"));
 map.draw([[25.774, -80.190], [18.466, -66.118], [32.321, -64.757]]);
 ```
 
-## Advanced Configuration
-
-### Map Default Settings
+## Advanced Initialization
 
 ```javascript
 var map = new Bermuda(document.getElementById("map-canvas"), {
@@ -32,16 +30,11 @@ var map = new Bermuda(document.getElementById("map-canvas"), {
       image: "images/map-pin@2x.png",
       width: 15,
       height: 21
+    },
+    autoCenter: true,
+    onChange: function(coords) {
+        console.log(coords);
     }
-});
-```
-
-### Subscribe to Map Changes
-You could subscribe to change events on the map easily
-
-```javascript
-map.onChange(function(coords) {
-    console.log(coords);
 });
 ```
 

@@ -2,109 +2,28 @@ var Bermuda,
   __slice = [].slice;
 
 Bermuda = (function() {
-  var DEFAULT_SETTINGS, autoCenter, combine, createIcon, isEmpty, listen, markerCoordinates, markerLatLangs, merge, removePolygon, toLatLang, toLatLangs;
+  var DEFAULT_SETTINGS, isEmpty, listen, merge, removePolygon, toLatLngs;
 
   DEFAULT_SETTINGS = {
+    autoCenter: true,
     marker: {},
     polygon: {},
     icon: {},
-    map: {}
+    map: {},
+    onChange: function(coords) {}
   };
 
-  Bermuda.prototype.changeCallback = function(coords) {};
+  Bermuda.prototype.markers = [];
 
   function Bermuda(elem, config) {
     this.elem = elem;
     if (config == null) {
       config = {};
     }
-    this.settings = combine(DEFAULT_SETTINGS, config);
-    this.icon = createIcon(this.settings);
+    this.settings = merge(DEFAULT_SETTINGS, config);
+    this.map = this.initMap();
+    this.icon = this.initIcon();
   }
-
-  combine = function(defaults, config) {
-    var item, key, name, value;
-    for (name in config) {
-      item = config[name];
-      for (key in item) {
-        value = item[key];
-        defaults[name][key] = value;
-      }
-    }
-    return defaults;
-  };
-
-  createIcon = function(settings) {
-    var size;
-    if (isEmpty(settings.icon)) {
-      return null;
-    }
-    size = new google.maps.Size(settings.icon.width, settings.icon.height);
-    return new google.maps.MarkerImage(settings.icon.image, null, null, null, size);
-  };
-
-  isEmpty = function(object) {
-    return Object.keys(object).length === 0;
-  };
-
-  Bermuda.prototype.onChange = function(callback) {
-    return this.changeCallback = callback;
-  };
-
-  Bermuda.prototype.draw = function(coords) {
-    var map;
-    map = new google.maps.Map(this.elem, this.settings.map);
-    return this.initPolygon(map, this.initMarkers(map, coords));
-  };
-
-  Bermuda.prototype.initMarkers = function(map, coords) {
-    var marker, markers, _i, _len;
-    markers = this.createMarkers(map, coords);
-    autoCenter(map, markerLatLangs(markers));
-    for (_i = 0, _len = markers.length; _i < _len; _i++) {
-      marker = markers[_i];
-      listen(marker, "dragend", (function(_this) {
-        return function() {
-          return _this.changeCallback(markerCoordinates(markers));
-        };
-      })(this));
-    }
-    return markers;
-  };
-
-  Bermuda.prototype.createMarkers = function(map, coords) {
-    var point, points, _i, _len, _results;
-    points = toLatLangs(coords);
-    _results = [];
-    for (_i = 0, _len = points.length; _i < _len; _i++) {
-      point = points[_i];
-      _results.push(this.createMarker(map, point));
-    }
-    return _results;
-  };
-
-  toLatLangs = function(coords) {
-    var coord, _i, _len, _results;
-    _results = [];
-    for (_i = 0, _len = coords.length; _i < _len; _i++) {
-      coord = coords[_i];
-      _results.push(toLatLang(coord));
-    }
-    return _results;
-  };
-
-  toLatLang = function(coord) {
-    return new google.maps.LatLng(coord[0], coord[1]);
-  };
-
-  Bermuda.prototype.createMarker = function(map, point) {
-    return new google.maps.Marker(merge(this.settings.marker, {
-      position: point,
-      map: map,
-      draggable: true,
-      icon: this.icon
-    }));
-  };
 
   merge = function() {
     var dest, key, obj, objs, value, _i, _len;
@@ -120,31 +39,94 @@ Bermuda = (function() {
     return dest;
   };
 
-  autoCenter = function(map, markers) {
-    var bounds, position, _i, _len;
+  Bermuda.prototype.initMap = function() {
+    return new google.maps.Map(this.elem, this.settings.map);
+  };
+
+  Bermuda.prototype.initIcon = function() {
+    var size;
+    if (isEmpty(this.settings.icon)) {
+      return;
+    }
+    size = new google.maps.Size(this.settings.icon.width, this.settings.icon.height);
+    return new google.maps.MarkerImage(this.settings.icon.image, null, null, null, size);
+  };
+
+  isEmpty = function(object) {
+    return Object.keys(object).length === 0;
+  };
+
+  Bermuda.prototype.draw = function(coords) {
+    this.addMarkers(coords);
+    if (this.settings.autoCenter) {
+      this.autoCenter();
+    }
+    return this.initPolygon();
+  };
+
+  Bermuda.prototype.addMarkers = function(coords) {
+    var latLng, marker, _i, _len, _ref, _results;
+    _ref = toLatLngs(coords);
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      latLng = _ref[_i];
+      marker = this.createMarker(latLng);
+      listen(marker, "dragend", (function(_this) {
+        return function() {
+          return _this.settings.onChange(_this.markerCoordinates());
+        };
+      })(this));
+      _results.push(this.markers.push(marker));
+    }
+    return _results;
+  };
+
+  toLatLngs = function(coords) {
+    var coord, _i, _len, _results;
+    _results = [];
+    for (_i = 0, _len = coords.length; _i < _len; _i++) {
+      coord = coords[_i];
+      _results.push(new google.maps.LatLng(coord[0], coord[1]));
+    }
+    return _results;
+  };
+
+  Bermuda.prototype.createMarker = function(latLng) {
+    return new google.maps.Marker(merge(this.settings.marker, {
+      position: latLng,
+      map: this.map,
+      draggable: true,
+      icon: this.icon
+    }));
+  };
+
+  Bermuda.prototype.autoCenter = function() {
+    var bounds, position, _i, _len, _ref;
     bounds = new google.maps.LatLngBounds();
-    for (_i = 0, _len = markers.length; _i < _len; _i++) {
-      position = markers[_i];
+    _ref = this.markerPositions();
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      position = _ref[_i];
       bounds.extend(position);
     }
-    return map.fitBounds(bounds);
+    return this.map.fitBounds(bounds);
   };
 
   listen = function(elem, event, callback) {
     return google.maps.event.addListener(elem, event, callback);
   };
 
-  Bermuda.prototype.initPolygon = function(map, markers) {
-    var marker, polygon, _i, _len, _results;
-    polygon = this.createPolygon(map, markers);
+  Bermuda.prototype.initPolygon = function() {
+    var marker, polygon, _i, _len, _ref, _results;
+    polygon = this.createPolygon();
+    _ref = this.markers;
     _results = [];
-    for (_i = 0, _len = markers.length; _i < _len; _i++) {
-      marker = markers[_i];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      marker = _ref[_i];
       _results.push(listen(marker, "drag", (function(_this) {
         return function() {
           var prevPolygon;
           prevPolygon = polygon;
-          polygon = _this.createPolygon(map, markers);
+          polygon = _this.createPolygon();
           return removePolygon(prevPolygon);
         };
       })(this)));
@@ -152,21 +134,23 @@ Bermuda = (function() {
     return _results;
   };
 
-  markerLatLangs = function(markers) {
-    var marker, _i, _len, _results;
+  Bermuda.prototype.markerPositions = function() {
+    var marker, _i, _len, _ref, _results;
+    _ref = this.markers;
     _results = [];
-    for (_i = 0, _len = markers.length; _i < _len; _i++) {
-      marker = markers[_i];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      marker = _ref[_i];
       _results.push(marker.position);
     }
     return _results;
   };
 
-  markerCoordinates = function(markers) {
-    var marker, _i, _len, _results;
+  Bermuda.prototype.markerCoordinates = function() {
+    var marker, _i, _len, _ref, _results;
+    _ref = this.markers;
     _results = [];
-    for (_i = 0, _len = markers.length; _i < _len; _i++) {
-      marker = markers[_i];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      marker = _ref[_i];
       _results.push([marker.position.lat(), marker.position.lng()]);
     }
     return _results;
@@ -176,13 +160,21 @@ Bermuda = (function() {
     return polygon.setMap(null);
   };
 
-  Bermuda.prototype.createPolygon = function(map, markers) {
+  Bermuda.prototype.createPolygon = function() {
     return new google.maps.Polygon(merge(this.settings.polygon, {
-      map: map,
-      paths: markerLatLangs(markers),
+      map: this.map,
+      paths: this.markerPositions(),
       draggable: false,
       geodesic: true
     }));
+  };
+
+  Bermuda.prototype.zoomIn = function() {
+    return this.map.setZoom(this.map.zoom + 1);
+  };
+
+  Bermuda.prototype.zoomOut = function() {
+    return this.map.setZoom(this.map.zoom - 1);
   };
 
   return Bermuda;
