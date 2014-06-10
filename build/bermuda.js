@@ -56,6 +56,28 @@ Bermuda = (function() {
     return Object.keys(object).length === 0;
   };
 
+  Bermuda.prototype.disable = function() {
+    var marker, _i, _len, _ref, _results;
+    _ref = this.markers;
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      marker = _ref[_i];
+      _results.push(marker.setMap(null));
+    }
+    return _results;
+  };
+
+  Bermuda.prototype.enable = function() {
+    var marker, _i, _len, _ref, _results;
+    _ref = this.markers;
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      marker = _ref[_i];
+      _results.push(marker.setMap(this.map));
+    }
+    return _results;
+  };
+
   Bermuda.prototype.draw = function(coords) {
     this.addMarkers(coords);
     if (this.settings.autoCenter) {

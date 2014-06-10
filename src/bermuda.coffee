@@ -32,6 +32,12 @@ class Bermuda
   isEmpty = (object) ->
      Object.keys(object).length is 0
   
+  disable: ->
+    marker.setMap(null) for marker in @markers
+
+  enable: ->
+    marker.setMap(@map) for marker in @markers
+
   draw: (coords) ->
     @addMarkers(coords)
     @autoCenter() if @settings.autoCenter

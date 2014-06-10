@@ -18,6 +18,19 @@ var map = new Bermuda(document.getElementById("map-canvas"));
 map.draw([[25.774, -80.190], [18.466, -66.118], [32.321, -64.757]]);
 ```
 
+### Disable Interaction
+You could freeze the map and prevent user interaction with a single instruction!
+
+```javascript
+map.disable();
+```
+
+In the same way you could enable interaction again with
+
+```javascript
+map.enable();
+```
+
 ## Advanced Initialization
 
 ```javascript
