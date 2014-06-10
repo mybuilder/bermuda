@@ -31,8 +31,17 @@ In the same way you could enable interaction again with
 map.enable();
 ```
 
-## Advanced Initialization
+## Configuration Options
 
+property     | type       | description
+-------------|------------|------------
+`map`        | `Object`   | Options for [google.maps.Map](https://developers.google.com/maps/documentation/javascript/reference#Map)
+`polygon`    | `Object`   | Options for [google.maps.Polygon](https://developers.google.com/maps/documentation/javascript/reference#Polygon)
+`icon`       | `Object`   | Configuration for marker icons 
+`autoCenter` | `Bool`     | Map automatic centering
+`onChange`   | `Function` | This function will be called everytime a pin is dragged
+
+### Example
 ```javascript
 var map = new Bermuda(document.getElementById("map-canvas"), {
     polygon: {
