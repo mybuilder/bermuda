@@ -47,7 +47,7 @@ class Bermuda
     for latLng in toLatLngs(coords)
       marker = @createMarker(latLng)
       listen marker, "dragend", =>
-        @settings.onChange(@markerCoordinates())
+        @settings.onChange(@getCoords())
       @markers.push(marker)
   
   toLatLngs = (coords) ->
@@ -62,7 +62,7 @@ class Bermuda
   
   autoCenter: ->
     bounds = new google.maps.LatLngBounds()
-    bounds.extend(position) for position in @markerPositions()
+    bounds.extend(position) for position in @getPositions()
     @map.fitBounds(bounds)
  
   listen = (elem, event, callback) ->
@@ -76,10 +76,10 @@ class Bermuda
         polygon = @createPolygon()
         removePolygon(prevPolygon)
   
-  markerPositions: ->
+  getPositions: ->
     marker.position for marker in @markers
 
-  markerCoordinates: ->
+  getCoords: ->
     [marker.position.lat(), marker.position.lng()] for marker in @markers
       
   removePolygon = (polygon) ->
@@ -88,7 +88,7 @@ class Bermuda
   createPolygon: ->
     new google.maps.Polygon merge @settings.polygon,
       map: @map
-      paths: @markerPositions()
+      paths: @getPositions()
       draggable: false
       geodesic: true
 

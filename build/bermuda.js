@@ -95,7 +95,7 @@ Bermuda = (function() {
       marker = this.createMarker(latLng);
       listen(marker, "dragend", (function(_this) {
         return function() {
-          return _this.settings.onChange(_this.markerCoordinates());
+          return _this.settings.onChange(_this.getCoords());
         };
       })(this));
       _results.push(this.markers.push(marker));
@@ -125,7 +125,7 @@ Bermuda = (function() {
   Bermuda.prototype.autoCenter = function() {
     var bounds, position, _i, _len, _ref;
     bounds = new google.maps.LatLngBounds();
-    _ref = this.markerPositions();
+    _ref = this.getPositions();
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       position = _ref[_i];
       bounds.extend(position);
@@ -156,7 +156,7 @@ Bermuda = (function() {
     return _results;
   };
 
-  Bermuda.prototype.markerPositions = function() {
+  Bermuda.prototype.getPositions = function() {
     var marker, _i, _len, _ref, _results;
     _ref = this.markers;
     _results = [];
@@ -167,7 +167,7 @@ Bermuda = (function() {
     return _results;
   };
 
-  Bermuda.prototype.markerCoordinates = function() {
+  Bermuda.prototype.getCoords = function() {
     var marker, _i, _len, _ref, _results;
     _ref = this.markers;
     _results = [];
@@ -185,7 +185,7 @@ Bermuda = (function() {
   Bermuda.prototype.createPolygon = function() {
     return new google.maps.Polygon(merge(this.settings.polygon, {
       map: this.map,
-      paths: this.markerPositions(),
+      paths: this.getPositions(),
       draggable: false,
       geodesic: true
     }));
