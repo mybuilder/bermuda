@@ -1,7 +1,8 @@
 class Bermuda
   
   DEFAULT_SETTINGS =
-    autoCenter: true
+    disabled: false
+    autoCentered: true
     marker: {}
     polygon: {}
     icon: {}
@@ -39,14 +40,19 @@ class Bermuda
     removePolygon(@polygon) if @polygon
 
   removeMarkers: ->
-    @disable()
+    @detachMarkers()
     @markers = []
 
-  disable: ->
+  detachMarkers: ->
     marker.setMap(null) for marker in @markers
+
+  disable: ->
+    @detachMarkers()
+    @settings.disabled = true
 
   enable: ->
     marker.setMap(@map) for marker in @markers
+    @settings.disabled = false
 
   draw: (coords) ->
     @clear()
@@ -56,17 +62,18 @@ class Bermuda
   initMarkers: (coords) ->
     @markers.push(@createMarker(latLng)) for latLng in toLatLngs(coords)
     @listen("dragend", => @settings.onChange(@getCoords()))
-    @autoCenter() if @settings.autoCenter
+    @autoCenter() if @settings.autoCentered
   
   toLatLngs = (coords) ->
     new google.maps.LatLng(coord[0], coord[1]) for coord in coords
   
   createMarker: (latLng) ->
-    new google.maps.Marker merge @settings.marker,
+    marker = new google.maps.Marker merge @settings.marker,
       position: latLng
-      map: @map
       draggable: true
       icon: @icon
+    marker.setMap(@map) unless @settings.disabled
+    marker
   
   autoCenter: ->
     bounds = new google.maps.LatLngBounds()

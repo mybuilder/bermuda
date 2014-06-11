@@ -6,7 +6,8 @@ Bermuda = (function() {
   var DEFAULT_SETTINGS, isEmpty, merge, removePolygon, toLatLngs;
 
   DEFAULT_SETTINGS = {
-    autoCenter: true,
+    disabled: false,
+    autoCentered: true,
     marker: {},
     polygon: {},
     icon: {},
@@ -70,11 +71,11 @@ Bermuda = (function() {
   };
 
   Bermuda.prototype.removeMarkers = function() {
-    this.disable();
+    this.detachMarkers();
     return this.markers = [];
   };
 
-  Bermuda.prototype.disable = function() {
+  Bermuda.prototype.detachMarkers = function() {
     var marker, _i, _len, _ref, _results;
     _ref = this.markers;
     _results = [];
@@ -85,15 +86,19 @@ Bermuda = (function() {
     return _results;
   };
 
+  Bermuda.prototype.disable = function() {
+    this.detachMarkers();
+    return this.settings.disabled = true;
+  };
+
   Bermuda.prototype.enable = function() {
-    var marker, _i, _len, _ref, _results;
+    var marker, _i, _len, _ref;
     _ref = this.markers;
-    _results = [];
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       marker = _ref[_i];
-      _results.push(marker.setMap(this.map));
+      marker.setMap(this.map);
     }
-    return _results;
+    return this.settings.disabled = false;
   };
 
   Bermuda.prototype.draw = function(coords) {
@@ -114,7 +119,7 @@ Bermuda = (function() {
         return _this.settings.onChange(_this.getCoords());
       };
     })(this));
-    if (this.settings.autoCenter) {
+    if (this.settings.autoCentered) {
       return this.autoCenter();
     }
   };
@@ -130,12 +135,16 @@ Bermuda = (function() {
   };
 
   Bermuda.prototype.createMarker = function(latLng) {
-    return new google.maps.Marker(merge(this.settings.marker, {
+    var marker;
+    marker = new google.maps.Marker(merge(this.settings.marker, {
       position: latLng,
-      map: this.map,
       draggable: true,
       icon: this.icon
     }));
+    if (!this.settings.disabled) {
+      marker.setMap(this.map);
+    }
+    return marker;
   };
 
   Bermuda.prototype.autoCenter = function() {

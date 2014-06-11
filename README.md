@@ -33,13 +33,14 @@ clear       | *none*    | *none*  | Remove all markers and polygon from the map
 
 ## Configuration Options
 
-property   | type       | description
------------|------------|------------
-map        | `Object`   | Options for [google.maps.Map](https://developers.google.com/maps/documentation/javascript/reference#Map)
-polygon    | `Object`   | Options for [google.maps.Polygon](https://developers.google.com/maps/documentation/javascript/reference#Polygon)
-icon       | `Object`   | Configuration for marker icons 
-autoCenter | `Boolean`  | Map automatic centering
-onChange   | `Function` | This function will be called everytime a pin is dragged
+property     | type       | description
+-------------|------------|------------
+map          | `Object`   | Options for [google.maps.Map](https://developers.google.com/maps/documentation/javascript/reference#Map)
+polygon      | `Object`   | Options for [google.maps.Polygon](https://developers.google.com/maps/documentation/javascript/reference#Polygon)
+icon         | `Object`   | Configuration for marker icons 
+autoCentered | `Boolean`  | Map automatic centering
+onChange     | `Function` | This function will be called everytime a pin is dragged
+disabled     | `Boolean`  | Interaction disabled
 
 ### Example
 ```javascript
@@ -53,7 +54,7 @@ var map = new Bermuda(document.getElementById("map-canvas"), {
       width: 15,
       height: 21
     },
-    autoCenter: true,
+    autoCentered: true,
     onChange: function(coords) {
         console.log(coords);
     }
