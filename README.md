@@ -23,12 +23,13 @@ Once you build your map, you could do some amazing stuff with it, the available 
 
 method      | arguments | return  | description
 ------------|-----------|---------|------------
-draw        | `Array`   | *none*  | Draw polygon on the map
+draw        | `Array`   | *none*  | Draw markers and polygon on the map
 zoomIn      | *none*    | *none*  | Zoom in
 zoomOut     | *none*    | *none*  | Zoom out
 disable     | *none*    | *none*  | Freeze the map, disable interaction
 enable      | *none*    | *none*  | Re-enable interaction
-getCoords   | *none*    | `Array` | Get the current marker coordinates 
+getCoords   | *none*    | `Array` | Get the current marker coordinates
+clear       | *none*    | *none*  | Remove all markers and polygon from the map
 
 ## Configuration Options
 

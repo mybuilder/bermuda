@@ -9,11 +9,13 @@ class Bermuda
     onChange: (coords) ->
 
   markers: []
+  polygon: null
+  icon: null
   
   constructor: (@elem, config = {}) ->
     @settings = merge(DEFAULT_SETTINGS, config)
-    @map = @initMap()
-    @icon = @initIcon()
+    @initMap()
+    @initIcon()
 
   merge = (objs...) ->
     dest = {}
@@ -22,16 +24,24 @@ class Bermuda
     dest
     
   initMap: ->
-    new google.maps.Map(@elem, @settings.map)
+    @map = new google.maps.Map(@elem, @settings.map)
 
   initIcon: ->
     return if isEmpty(@settings.icon)
     size = new google.maps.Size(@settings.icon.width, @settings.icon.height)
-    new google.maps.MarkerImage(@settings.icon.image, null, null, null, size)
+    @icon = new google.maps.MarkerImage(@settings.icon.image, null, null, null, size)
 
   isEmpty = (object) ->
      Object.keys(object).length is 0
   
+  clear: ->
+    @removeMarkers()
+    removePolygon(@polygon) if @polygon
+
+  removeMarkers: ->
+    @disable()
+    @markers = []
+
   disable: ->
     marker.setMap(null) for marker in @markers
 
@@ -39,16 +49,14 @@ class Bermuda
     marker.setMap(@map) for marker in @markers
 
   draw: (coords) ->
-    @addMarkers(coords)
-    @autoCenter() if @settings.autoCenter
+    @clear()
+    @initMarkers(coords)
     @initPolygon()
   
-  addMarkers: (coords) ->
-    for latLng in toLatLngs(coords)
-      marker = @createMarker(latLng)
-      listen marker, "dragend", =>
-        @settings.onChange(@getCoords())
-      @markers.push(marker)
+  initMarkers: (coords) ->
+    @markers.push(@createMarker(latLng)) for latLng in toLatLngs(coords)
+    @listen("dragend", => @settings.onChange(@getCoords()))
+    @autoCenter() if @settings.autoCenter
   
   toLatLngs = (coords) ->
     new google.maps.LatLng(coord[0], coord[1]) for coord in coords
@@ -65,16 +73,17 @@ class Bermuda
     bounds.extend(position) for position in @getPositions()
     @map.fitBounds(bounds)
  
-  listen = (elem, event, callback) ->
-    google.maps.event.addListener(elem, event, callback)
+  listen: (event, callback) ->
+    google.maps.event.addListener(marker, event, callback) for marker in @markers
   
   initPolygon: ->
-    polygon = @createPolygon()
-    for marker in @markers
-      listen marker, "drag", =>
-        prevPolygon = polygon
-        polygon = @createPolygon()
-        removePolygon(prevPolygon)
+    @drawPolygon()
+    @listen("drag", @redrawPolygon)
+
+  redrawPolygon: =>
+    prevPolygon = @polygon
+    @drawPolygon()
+    removePolygon(prevPolygon)
   
   getPositions: ->
     marker.position for marker in @markers
@@ -85,8 +94,8 @@ class Bermuda
   removePolygon = (polygon) ->
     polygon.setMap(null)
       
-  createPolygon: ->
-    new google.maps.Polygon merge @settings.polygon,
+  drawPolygon: ->
+    @polygon = new google.maps.Polygon merge @settings.polygon,
       map: @map
       paths: @getPositions()
       draggable: false
