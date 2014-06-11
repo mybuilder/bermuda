@@ -22,23 +22,23 @@ map.draw([[25.774, -80.190], [18.466, -66.118], [32.321, -64.757]]);
 Once you build your map, you could do some amazing stuff with it, the available operations are listed below
 
 method      | arguments | return  | description
-------------|-----------|---------|---
-`draw`      | `Array`   | `none`  | Draw polygon on the map
-`zoomIn`    | `none`    | `none`  | Zoom in
-`zoomOut`   | `none`    | `none`  | Zoom out
-`disable`   | `none`    | `none`  | Freeze the map, disable interaction
-`enable`    | `none`    | `none`  | Re-enable interaction
-`getCoords` | `none`    | `Array` | Get the current marker coordinates 
+------------|-----------|---------|------------
+draw        | `Array`   | *none*  | Draw polygon on the map
+zoomIn      | *none*    | *none*  | Zoom in
+zoomOut     | *none*    | *none*  | Zoom out
+disable     | *none*    | *none*  | Freeze the map, disable interaction
+enable      | *none*    | *none*  | Re-enable interaction
+getCoords   | *none*    | `Array` | Get the current marker coordinates 
 
 ## Configuration Options
 
-property     | type       | description
--------------|------------|------------
-`map`        | `Object`   | Options for [google.maps.Map](https://developers.google.com/maps/documentation/javascript/reference#Map)
-`polygon`    | `Object`   | Options for [google.maps.Polygon](https://developers.google.com/maps/documentation/javascript/reference#Polygon)
-`icon`       | `Object`   | Configuration for marker icons 
-`autoCenter` | `Bool`     | Map automatic centering
-`onChange`   | `Function` | This function will be called everytime a pin is dragged
+property   | type       | description
+-----------|------------|------------
+map        | `Object`   | Options for [google.maps.Map](https://developers.google.com/maps/documentation/javascript/reference#Map)
+polygon    | `Object`   | Options for [google.maps.Polygon](https://developers.google.com/maps/documentation/javascript/reference#Polygon)
+icon       | `Object`   | Configuration for marker icons 
+autoCenter | `Boolean`  | Map automatic centering
+onChange   | `Function` | This function will be called everytime a pin is dragged
 
 ### Example
 ```javascript
