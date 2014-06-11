@@ -18,18 +18,17 @@ var map = new Bermuda(document.getElementById("map-canvas"));
 map.draw([[25.774, -80.190], [18.466, -66.118], [32.321, -64.757]]);
 ```
 
-### Disable Interaction
-You could freeze the map and prevent user interaction with a single instruction!
+### Available Operations
+Once you build your map, you could do some amazing stuff with it, the available operations are listed below
 
-```javascript
-map.disable();
-```
-
-In the same way you could enable interaction again with
-
-```javascript
-map.enable();
-```
+method      | arguments | return  | description
+------------|-----------|---------|---
+`draw`      | `Array`   | `none`  | Draw polygon on the map
+`zoomIn`    | `none`    | `none`  | Zoom in
+`zoomOut`   | `none`    | `none`  | Zoom out
+`disable`   | `none`    | `none`  | Freeze the map, disable interaction
+`enable`    | `none`    | `none`  | Re-enable interaction
+`getCoords` | `none`    | `Array` | Get the current marker coordinates 
 
 ## Configuration Options
 
