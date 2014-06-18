@@ -33,7 +33,9 @@ class Bermuda
     @icon = new google.maps.MarkerImage(@settings.icon.image, null, null, null, size)
 
   isEmpty = (object) ->
-     Object.keys(object).length is 0
+    for property of object
+      return false if object.hasOwnProperty(property)
+    true
   
   clear: ->
     @removeMarkers()

@@ -60,7 +60,13 @@ Bermuda = (function() {
   };
 
   isEmpty = function(object) {
-    return Object.keys(object).length === 0;
+    var property;
+    for (property in object) {
+      if (object.hasOwnProperty(property)) {
+        return false;
+      }
+    }
+    return true;
   };
 
   Bermuda.prototype.clear = function() {
